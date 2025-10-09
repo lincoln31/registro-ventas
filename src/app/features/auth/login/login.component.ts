@@ -11,36 +11,41 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './login.component.html'
 })
 export class LoginComponent {
-  private readonly fb = inject(FormBuilder);
-  private readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
+  // Inyección de dependencias
+  private readonly fb = inject(FormBuilder);   // para crear formularios
+  private readonly auth = inject(AuthService); // servicio de auth
+  private readonly router = inject(Router);    // navegación
 
+  // Estado de carga
   readonly loading = signal(false);
 
+  // Formulario reactivo con validaciones
   readonly form = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]]
+    email: ['', [Validators.required, Validators.email]], // campo email
+    password: ['', [Validators.required]]                // campo contraseña
   });
 
+  // Enviar formulario (login con email/contraseña)
   async onSubmit() {
     if (this.form.invalid) return;
 
     this.loading.set(true);
     try {
       const { email, password } = this.form.value;
-      await this.auth.login(email!, password!);
-      this.router.navigate(['/ventas']);
+      await this.auth.login(email!, password!);  // login
+      this.router.navigate(['/ventas']);         // redirige al dashboard
     } catch (error: any) {
-      alert(this.auth.handleAuthError(error)); // puedes cambiar por un toast service si quieres
+      alert(this.auth.handleAuthError(error));   // muestra error
     } finally {
-      this.loading.set(false);
+      this.loading.set(false);                   // termina carga
     }
   }
 
+  // Login con Google
   async loginWithGoogle() {
     this.loading.set(true);
     try {
-      await this.auth.loginWithGoogle();
+      await this.auth.loginWithGoogle();         // login Google
       this.router.navigate(['/ventas']);
     } catch (error: any) {
       alert(this.auth.handleAuthError(error));

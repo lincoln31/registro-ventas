@@ -1,58 +1,103 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h2>Iniciar Sesión</h2>
-    <p style="text-align: center; color: #666; margin-bottom: 1.5rem;">Sistema de Registro de Ventas</p>
+<!-- Contenedor principal centrado en pantalla -->
+<div class="auth-container d-flex align-items-center justify-content-center min-vh-100">
+  <div class="auth-card fade-in-up">
 
+    <!-- Encabezado con icono y título -->
+    <div class="text-center mb-4">
+      <div class="mb-3">
+        <i class="bi bi-graph-up-arrow text-gradient" style="font-size: 3rem;"></i>
+      </div>
+      <h2 class="fw-bold">Iniciar Sesión</h2>
+      <p class="subtitle">Accede a tu sistema de registro de ventas</p>
+    </div>
+
+    <!-- Formulario de login -->
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="email">Email:</label>
+
+      <!-- Campo de correo -->
+      <div class="form-floating mb-3">
         <input 
           type="email" 
+          class="form-control" 
           id="email" 
+          placeholder="nombre@ejemplo.com"
           formControlName="email"
-          [class.error]="form.get('email')?.invalid && form.get('email')?.touched"
+          [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
         >
-        <div class="error-message" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+        <label for="email">
+          <i class="bi bi-envelope me-2"></i>Correo electrónico
+        </label>
+        <!-- Mensaje de error si el email es inválido -->
+        <div class="invalid-feedback" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+          <i class="bi bi-exclamation-circle me-1"></i>
           Ingrese un email válido
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="password">Contraseña:</label>
+      <!-- Campo de contraseña -->
+      <div class="form-floating mb-4">
         <input 
           type="password" 
+          class="form-control" 
           id="password" 
+          placeholder="Contraseña"
           formControlName="password"
-          [class.error]="form.get('password')?.invalid && form.get('password')?.touched"
+          [class.is-invalid]="form.get('password')?.invalid && form.get('password')?.touched"
         >
-        <div class="error-message" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+        <label for="password">
+          <i class="bi bi-lock me-2"></i>Contraseña
+        </label>
+        <!-- Mensaje de error si la contraseña no se ingresó -->
+        <div class="invalid-feedback" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+          <i class="bi bi-exclamation-circle me-1"></i>
           La contraseña es requerida
         </div>
       </div>
 
-      <button 
-        type="submit" 
-        [disabled]="form.invalid || loading()"
-        class="btn-primary"
-        style="margin-bottom: 1rem;"
-      >
-        {{ loading() ? 'Iniciando...' : 'Iniciar Sesión' }}
-      </button>
+      <!-- Botón de login -->
+      <div class="d-grid gap-3">
+        <button 
+          type="submit" 
+          [disabled]="form.invalid || loading()"
+          class="btn btn-primary btn-lg"
+        >
+          <!-- Spinner mientras carga -->
+          <span *ngIf="loading()" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!loading()" class="bi bi-box-arrow-in-right me-2"></i>
+          {{ loading() ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+        </button>
 
-      <button 
-        type="button"
-        (click)="loginWithGoogle()"
-        [disabled]="loading()"
-        class="btn-primary"
-        style="background-color: #dc3545; margin-bottom: 1rem;"
-      >
-        {{ loading() ? 'Conectando...' : 'Continuar con Google' }}
-      </button>
+        <!-- Separador "o continúa con" -->
+        <div class="position-relative">
+          <hr class="my-4">
+          <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">
+            o continúa con
+          </span>
+        </div>
+
+        <!-- Botón para login con Google -->
+        <button 
+          type="button"
+          (click)="loginWithGoogle()"
+          [disabled]="loading()"
+          class="btn btn-google btn-lg"
+        >
+          <span *ngIf="loading()" class="spinner-border spinner-border-sm me-2"></span>
+          <!-- Logo de Google -->
+          <svg *ngIf="!loading()" width="18" height="18" viewBox="0 0 24 24" class="me-2">
+            <path fill="#4285F4" d="..."/>
+            <path fill="#34A853" d="..."/>
+            <path fill="#FBBC05" d="..."/>
+            <path fill="#EA4335" d="..."/>
+          </svg>
+          {{ loading() ? 'Conectando...' : 'Continuar con Google' }}
+        </button>
+      </div>
     </form>
 
+    <!-- Enlace para registrarse -->
     <div class="auth-links">
-      <p>¿No tienes cuenta? <a routerLink="/register">Regístrate</a></p>
+      <p class="mb-0">¿No tienes cuenta? <a routerLink="/register">Crear cuenta</a></p>
     </div>
   </div>
 </div>
-  

@@ -1,14 +1,15 @@
 import { Timestamp } from '@angular/fire/firestore';
 
+// Modelo de datos para una venta
 export interface Sale {
-  id?: string;          // ID generado por Firestore
-  uid: string;          // Usuario dueño de la venta
-  fecha: Timestamp;     // Fecha como Timestamp (consulta por rango)
-  fechaISO: string;     // YYYY-MM-DD (para filtros directos por día)
-  mes: string;          // YYYY-MM (para filtros por mes)
-  producto: string;
-  cantidad: number;
-  precioUnit: number;
-  importe: number;      // cantidad * precioUnit
-  createdAt: Timestamp; // Fecha de creación
+  id?: string;          // ID en Firestore (opcional)
+  uid: string;          // ID del usuario dueño
+  fecha: Timestamp;     // Fecha como Timestamp
+  fechaISO: string;     // Fecha en formato YYYY-MM-DD
+  mes: string;          // Mes en formato YYYY-MM
+  producto: string;     // Nombre del producto
+  cantidad: number;     // Cantidad vendida
+  precioUnit: number;   // Precio por unidad
+  importe: number;      // Total (cantidad * precioUnit)
+  createdAt: Timestamp; // Fecha de creación del registro
 }

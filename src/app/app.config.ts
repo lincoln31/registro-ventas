@@ -8,12 +8,13 @@ import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
 
+// Configuración principal de la app
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
-    provideHttpClient(),
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore())
+    provideRouter(routes),                   // Rutas de la app
+    provideHttpClient(),                     // Cliente HTTP
+    provideFirebaseApp(() => initializeApp(environment.firebase)), // Inicializa Firebase
+    provideAuth(() => getAuth()),            // Autenticación de Firebase
+    provideFirestore(() => getFirestore())   // Firestore (base de datos)
   ]
 };

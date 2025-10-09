@@ -4,7 +4,7 @@ import { authGuard } from './core/guards/auth.guard';
 export const routes: Routes = [
     {
         path: '',
-        redirectTo: '/login',
+        redirectTo: '/login',   // Redirige al login por defecto
         pathMatch: 'full'
     },
     {
@@ -17,11 +17,11 @@ export const routes: Routes = [
     },
     {
         path: 'ventas',
-        canActivate: [authGuard],
+        canActivate: [authGuard],  // Solo accesible si el usuario está logueado
         loadChildren: () => import('./features/ventas/ventas.routes').then(m => m.ventasRoutes)
     },
     {
         path: '**',
-        redirectTo: '/login'
+        redirectTo: '/login'  // Cualquier ruta inválida → login
     }
 ];

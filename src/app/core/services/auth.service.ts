@@ -12,6 +12,7 @@ import {
 import { GoogleAuthProvider } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 
+// Modelo simple de usuario autenticado
 interface AuthUser {
   id: string;
   email: string;
@@ -25,15 +26,16 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly googleProvider = new GoogleAuthProvider();
 
-  // Signals para estado reactivo
-  readonly currentUser = signal<AuthUser | null>(null);
-  readonly isLoading = signal(true);
-  readonly isAuthenticated = computed(() => this.currentUser() !== null);
+  // Estado reactivo
+  readonly currentUser = signal<AuthUser | null>(null); // usuario actual
+  readonly isLoading = signal(true);                    // cargando sesión
+  readonly isAuthenticated = computed(() => this.currentUser() !== null); // true si hay usuario
 
   constructor() {
     this.initializeAuth();
   }
 
+  // Mantiene sesión entre recargas
   private initializeAuth(): void {
     onAuthStateChanged(this.auth, (user) => {
       this.currentUser.set(user ? this.mapUser(user) : null);
@@ -41,6 +43,7 @@ export class AuthService {
     });
   }
 
+  // Convierte el objeto User de Firebase a AuthUser
   private mapUser(user: User): AuthUser {
     return {
       id: user.uid,
@@ -50,26 +53,31 @@ export class AuthService {
     };
   }
 
+  // Login con email y contraseña
   async login(email: string, password: string): Promise<void> {
     await signInWithEmailAndPassword(this.auth, email, password);
-    this.router.navigate(['/ventas']); // redirigir tras login
+    this.router.navigate(['/ventas']); // redirige al dashboard
   }
 
+  // Registro con email y contraseña
   async register(email: string, password: string): Promise<void> {
     await createUserWithEmailAndPassword(this.auth, email, password);
-    this.router.navigate(['/ventas']); // redirigir tras registro
+    this.router.navigate(['/ventas']);
   }
 
+  // Login con Google
   async loginWithGoogle(): Promise<void> {
     await signInWithPopup(this.auth, this.googleProvider);
     this.router.navigate(['/ventas']);
   }
 
+  // Cerrar sesión
   async logout(): Promise<void> {
     await signOut(this.auth);
     this.router.navigate(['/login']);
   }
 
+  // Manejo de errores de autenticación
   handleAuthError(error: FirebaseError): string {
     switch (error.code) {
       case 'auth/user-not-found':

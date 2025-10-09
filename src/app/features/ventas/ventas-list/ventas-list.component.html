@@ -1,62 +1,190 @@
-<div class="container">
-  <div class="card">
-    <h2>Listado de Ventas</h2>
-    
-    <!-- Filtros -->
-    <div class="filters">
-      <select [(ngModel)]="filtroTipo" (ngModelChange)="cargarVentas()">
-        <option value="all">Todas</option>
-        <option value="day">Por día</option>
-        <option value="month">Por mes</option>
-      </select>
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Header -->
+      <div class="card mb-4 fade-in-up">
+        <div class="card-header">
+          <h2 class="mb-0">
+            <i class="bi bi-list-ul me-2"></i>
+            Listado de Ventas
+          </h2>
+        </div>
+      </div>
 
-      <input 
-        *ngIf="filtroTipo() === 'day'" 
-        type="date" 
-        [(ngModel)]="fechaISO" 
-        (change)="cargarVentas()"
-      >
+      <!-- Filtros -->
+      <div class="filters-container fade-in-up">
+        <h5 class="mb-3">
+          <i class="bi bi-funnel me-2"></i>Filtros
+        </h5>
+        <div class="filters">
+          <div class="filter-group">
+            <label for="filtroTipo" class="form-label">Tipo de filtro</label>
+            <select 
+              id="filtroTipo"
+              class="form-select" 
+              [(ngModel)]="filtroTipo" 
+              (ngModelChange)="cargarVentas()"
+            >
+              <option value="all">
+                <i class="bi bi-list"></i> Todas las ventas
+              </option>
+              <option value="day">
+                <i class="bi bi-calendar-day"></i> Por día específico
+              </option>
+              <option value="month">
+                <i class="bi bi-calendar-month"></i> Por mes
+              </option>
+            </select>
+          </div>
 
-      <input 
-        *ngIf="filtroTipo() === 'month'" 
-        type="month" 
-        [(ngModel)]="mes" 
-        (change)="cargarVentas()"
-      >
-    </div>
+          <div class="filter-group" *ngIf="filtroTipo() === 'day'">
+            <label for="fechaISO" class="form-label">Fecha específica</label>
+            <input 
+              id="fechaISO"
+              type="date" 
+              class="form-control"
+              [(ngModel)]="fechaISO" 
+              (change)="cargarVentas()"
+            >
+          </div>
 
-    <!-- Tabla -->
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Producto</th>
-          <th>Cantidad</th>
-          <th>Precio Unit</th>
-          <th>Importe</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let v of (ventas$ | async)">
-          <td>{{ v.fechaISO }}</td>
-          <td>{{ v.producto }}</td>
-          <td>{{ v.cantidad }}</td>
-          <td>${{ v.precioUnit }}</td>
-          <td><strong>${{ v.importe }}</strong></td>
-          <td>
-            <button class="btn btn-danger" (click)="v.id && eliminarVenta(v.id)">
-              Eliminar
+          <div class="filter-group" *ngIf="filtroTipo() === 'month'">
+            <label for="mes" class="form-label">Mes y año</label>
+            <input 
+              id="mes"
+              type="month" 
+              class="form-control"
+              [(ngModel)]="mes" 
+              (change)="cargarVentas()"
+            >
+          </div>
+
+          <div class="filter-group d-flex align-items-end">
+            <button 
+              type="button" 
+              class="btn btn-outline-primary"
+              (click)="cargarVentas()"
+            >
+              <i class="bi bi-arrow-clockwise me-2"></i>
+              Actualizar
             </button>
-          </td>
-        </tr>
-        <tr *ngIf="(ventas$ | async)?.length === 0">
-          <td colspan="6" style="text-align: center; color: #666;">
-            No hay ventas registradas.
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de ventas -->
+      <div class="card fade-in-up">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <div class="table-container">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>
+                      <i class="bi bi-calendar3 me-2"></i>Fecha
+                    </th>
+                    <th>
+                      <i class="bi bi-box me-2"></i>Producto
+                    </th>
+                    <th class="text-center">
+                      <i class="bi bi-123 me-2"></i>Cantidad
+                    </th>
+                    <th class="text-end">
+                      <i class="bi bi-currency-dollar me-2"></i>Precio Unit.
+                    </th>
+                    <th class="text-end">
+                      <i class="bi bi-calculator me-2"></i>Total
+                    </th>
+                    <th class="text-center">
+                      <i class="bi bi-gear me-2"></i>Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let v of (ventas$ | async); trackBy: trackByVentaId">
+                    <td>
+                      <span class="badge bg-light text-dark">
+                        {{ v.fechaISO | date:'dd/MM/yyyy' }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="fw-semibold">{{ v.producto }}</div>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge bg-primary">{{ v.cantidad }}</span>
+                    </td>
+                    <td class="text-end">
+                      <span class="text-success fw-semibold">${{ v.precioUnit | number:'1.2-2' }}</span>
+                    </td>
+                    <td class="text-end">
+                      <span class="badge bg-success fs-6">${{ v.importe | number:'1.2-2' }}</span>
+                    </td>
+                    <td class="text-center">
+                      <button 
+                        class="btn btn-outline-danger btn-sm" 
+                        (click)="v.id && eliminarVenta(v.id)"
+                        title="Eliminar venta"
+                      >
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              <!-- Estado vacío -->
+              <div *ngIf="(ventas$ | async)?.length === 0" class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <h5 class="mt-3 mb-2">No hay ventas registradas</h5>
+                <p class="text-muted">
+                  No se encontraron ventas con los filtros seleccionados.
+                  <br>
+                  <a routerLink="/ventas/form" class="btn btn-primary mt-3">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Registrar primera venta
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas rápidas -->
+      <div class="row mt-4" *ngIf="(ventas$ | async)?.length">
+        <div class="col-md-4">
+          <div class="card text-center fade-in-up">
+            <div class="card-body">
+              <i class="bi bi-graph-up text-primary" style="font-size: 2rem;"></i>
+              <h5 class="card-title mt-2">Total Ventas</h5>
+              <h3 class="text-primary">{{ (ventas$ | async)?.length || 0 }}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-center fade-in-up">
+            <div class="card-body">
+              <i class="bi bi-currency-dollar text-success" style="font-size: 2rem;"></i>
+              <h5 class="card-title mt-2">Ingresos Total</h5>
+              <h3 class="text-success">
+                ${{ calculateTotal(ventas$ | async) | number:'1.2-2' }}
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-center fade-in-up">
+            <div class="card-body">
+              <i class="bi bi-bar-chart text-info" style="font-size: 2rem;"></i>
+              <h5 class="card-title mt-2">Promedio</h5>
+              <h3 class="text-info">
+                ${{ calculateAverage(ventas$ | async) | number:'1.2-2' }}
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
   
