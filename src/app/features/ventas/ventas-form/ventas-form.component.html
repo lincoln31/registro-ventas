@@ -1,0 +1,50 @@
+<div class="container">
+  <div class="card">
+    <h2>Registrar Venta</h2>
+    
+    <form [formGroup]="form" (ngSubmit)="guardarVenta()">
+      <div class="form-group">
+        <label for="fecha">Fecha:</label>
+        <input type="date" id="fecha" formControlName="fecha">
+        <div class="error-message" *ngIf="form.controls.fecha.invalid && form.controls.fecha.touched">
+          La fecha es obligatoria.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="producto">Producto:</label>
+        <input type="text" id="producto" formControlName="producto" placeholder="Nombre del producto">
+        <div class="error-message" *ngIf="form.controls.producto.invalid && form.controls.producto.touched">
+          El producto es obligatorio (mínimo 2 caracteres).
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="cantidad">Cantidad:</label>
+        <input type="number" id="cantidad" formControlName="cantidad" min="1">
+        <div class="error-message" *ngIf="form.controls.cantidad.invalid && form.controls.cantidad.touched">
+          La cantidad debe ser mayor a 0.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="precioUnit">Precio Unitario:</label>
+        <input type="number" id="precioUnit" formControlName="precioUnit" min="1">
+        <div class="error-message" *ngIf="form.controls.precioUnit.invalid && form.controls.precioUnit.touched">
+          El precio debe ser mayor a 0.
+        </div>
+      </div>
+
+      <!-- Mensaje de estado -->
+      <div *ngIf="message()" class="message" [class.success]="message()?.includes('✅')" [class.error]="message()?.includes('❌')">
+        {{ message() }}
+      </div>
+
+      <!-- Botón Guardar -->
+      <button class="btn-primary" type="submit" [disabled]="isSaving()">
+        {{ isSaving() ? 'Guardando...' : 'Guardar Venta' }}
+      </button>
+    </form>
+  </div>
+</div>
+  

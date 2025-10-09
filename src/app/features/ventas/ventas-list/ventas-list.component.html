@@ -1,0 +1,62 @@
+<div class="container">
+  <div class="card">
+    <h2>Listado de Ventas</h2>
+    
+    <!-- Filtros -->
+    <div class="filters">
+      <select [(ngModel)]="filtroTipo" (ngModelChange)="cargarVentas()">
+        <option value="all">Todas</option>
+        <option value="day">Por día</option>
+        <option value="month">Por mes</option>
+      </select>
+
+      <input 
+        *ngIf="filtroTipo() === 'day'" 
+        type="date" 
+        [(ngModel)]="fechaISO" 
+        (change)="cargarVentas()"
+      >
+
+      <input 
+        *ngIf="filtroTipo() === 'month'" 
+        type="month" 
+        [(ngModel)]="mes" 
+        (change)="cargarVentas()"
+      >
+    </div>
+
+    <!-- Tabla -->
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unit</th>
+          <th>Importe</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let v of (ventas$ | async)">
+          <td>{{ v.fechaISO }}</td>
+          <td>{{ v.producto }}</td>
+          <td>{{ v.cantidad }}</td>
+          <td>${{ v.precioUnit }}</td>
+          <td><strong>${{ v.importe }}</strong></td>
+          <td>
+            <button class="btn btn-danger" (click)="v.id && eliminarVenta(v.id)">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="(ventas$ | async)?.length === 0">
+          <td colspan="6" style="text-align: center; color: #666;">
+            No hay ventas registradas.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+  
