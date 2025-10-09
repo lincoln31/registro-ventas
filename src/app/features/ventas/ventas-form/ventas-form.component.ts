@@ -156,7 +156,7 @@ async guardarVenta() {
       precioUnit: Number(this.form.value.precioUnit)
     };
     // guarda la venta usando el servicio
-    await this.ventasService.add(this.form.value as any);
+    await this.ventasService.add(formValue as any);
 
     // muestra éxito
     this.message.set('✅ Venta registrada con éxito.');
@@ -164,7 +164,7 @@ async guardarVenta() {
     // reinicia el formulario con valores por defecto
     this.form.reset({ cantidad: 1, precioUnit: 1 }); 
   } catch (err) {
-    console.error(err);
+    console.error(err, Number(this.form.value.cantidad),Number(this.form.value.precioUnit),);
     // muestra error si falla
     this.message.set('❌ Error al registrar la venta.');
   } finally {
