@@ -1,15 +1,22 @@
+
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
 
+/**
+ * Representa un usuario autenticado en la aplicación.
+ */
 interface AuthUser {
   id: string;
   email: string;
   displayName?: string;
 }
 
+/**
+ * Respuesta del backend para operaciones de autenticación.
+ */
 interface AuthResponse {
   success: boolean;
   user?: AuthUser;
@@ -17,6 +24,10 @@ interface AuthResponse {
   message?: string;
 }
 
+/**
+ * Servicio para gestionar la autenticación de usuarios.
+ * Proporciona métodos para login, registro, logout y manejo de estado de autenticación.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -31,6 +42,9 @@ export class AuthService {
     this.initializeAuth();
   }
 
+  /**
+   * Inicializa el estado de autenticación verificando si hay usuario en localStorage.
+   */
   private initializeAuth(): void {
     const user = localStorage.getItem('currentUser');
     if (user) {
@@ -39,6 +53,12 @@ export class AuthService {
     this.isLoading.set(false);
   }
 
+  /**
+   * Inicia sesión con email y contraseña.
+   * @param email Correo electrónico del usuario
+   * @param password Contraseña del usuario
+   * @throws Error si la autenticación falla
+   */
   async login(email: string, password: string): Promise<void> {
     const response = await firstValueFrom(
       this.http.post<AuthResponse>(`${this.apiUrl}/auth/login.php`, { email, password }, { withCredentials: true })
@@ -53,6 +73,12 @@ export class AuthService {
     }
   }
 
+  /**
+   * Registra un nuevo usuario con email y contraseña.
+   * @param email Correo electrónico del usuario
+   * @param password Contraseña del usuario
+   * @throws Error si el registro falla
+   */
   async register(email: string, password: string): Promise<void> {
     const response = await firstValueFrom(
       this.http.post<AuthResponse>(`${this.apiUrl}/auth/register.php`, { email, password }, { withCredentials: true })
@@ -67,6 +93,9 @@ export class AuthService {
     }
   }
 
+  /**
+   * Cierra la sesión del usuario actual.
+   */
   async logout(): Promise<void> {
     await firstValueFrom(
       this.http.get(`${this.apiUrl}/auth/logout.php`, { withCredentials: true })
@@ -76,6 +105,11 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  /**
+   * Maneja errores de autenticación y devuelve un mensaje legible.
+   * @param error Error recibido
+   * @returns Mensaje de error para mostrar al usuario
+   */
   handleAuthError(error: any): string {
     return error.error?.message || error.message || 'Error de autenticación';
   }

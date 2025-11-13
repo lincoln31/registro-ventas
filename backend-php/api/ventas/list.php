@@ -1,4 +1,16 @@
 <?php
+/**
+ * Endpoint para listar ventas del usuario autenticado.
+ * Permite filtrar por día, mes o moneda usando parámetros GET.
+ *
+ * Parámetros GET:
+ *  - filter: 'all' | 'day' | 'month' | 'currency' (opcional, por defecto 'all')
+ *  - value: string (opcional, depende del filtro)
+ *
+ * Respuestas posibles:
+ *  - 200: Retorna listado de ventas en 'data'
+ *  - 401: No autenticado
+ */
 session_start();
 require_once '../../config/database.php';
 
@@ -16,6 +28,7 @@ header('Content-Type: application/json');
 $filter = $_GET['filter'] ?? 'all';
 $value = $_GET['value'] ?? null;
 
+// Construye la consulta SQL según el filtro
 $query = "SELECT * FROM ventas WHERE uid = :uid";
 
 if ($filter === 'day' && $value) {

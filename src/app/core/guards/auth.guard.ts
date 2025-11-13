@@ -14,10 +14,10 @@ export const authGuard: CanActivateFn = () => {
 
   // Si el usuario está autenticado:
   if (auth.isAuthenticated()) {
-    return true; // ✅ Permite el acceso a la ruta
+    return true; //  Permite el acceso a la ruta
   } else {
     // Si no está autenticado:
-    router.navigate(['/login']); // 🔄 Lo redirigimos a la página de login
-    return false; // ❌ Bloquea el acceso a la ruta protegida
+    router.navigate(['/login']); //  Lo redirigimos a la página de login
+    return false; //  Bloquea el acceso a la ruta protegida
   }
 };

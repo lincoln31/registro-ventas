@@ -1,4 +1,18 @@
 <?php
+/**
+ * Endpoint para eliminar una venta.
+ * Requiere autenticación de usuario (sesión activa).
+ * Elimina la venta cuyo id se recibe por GET, solo si pertenece al usuario autenticado.
+ *
+ * Parámetro requerido:
+ *  - id: int (por GET)
+ *
+ * Respuestas posibles:
+ *  - 200: Venta eliminada correctamente
+ *  - 401: No autenticado
+ *  - 400: ID no proporcionado
+ *  - 500: Error al eliminar
+ */
 session_start();
 require_once '../../config/database.php';
 
@@ -16,6 +30,7 @@ header('Content-Type: application/json');
 $id = $_GET['id'] ?? null;
 
 if ($id) {
+    // Elimina la venta solo si pertenece al usuario autenticado
     $query = "DELETE FROM ventas WHERE id = :id AND uid = :uid";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':id', $id);

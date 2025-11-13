@@ -1,4 +1,11 @@
 <?php
+/**
+ * Endpoint para cerrar la sesión del usuario.
+ * Destruye la sesión activa y responde con confirmación en formato JSON.
+ *
+ * Respuesta:
+ *  - 200: Sesión cerrada correctamente
+ */
 session_start();
 session_destroy();
 

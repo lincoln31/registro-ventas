@@ -1,4 +1,19 @@
 <?php
+/**
+ * Configuración y clase de conexión a la base de datos MySQL.
+ * Incluye cabeceras CORS para permitir peticiones desde el frontend.
+ *
+ * Métodos:
+ *  - getConnection(): Devuelve una instancia PDO conectada a la base de datos.
+ *
+ * Cabeceras CORS:
+ *  - Permite origen: http://localhost:4200
+ *  - Métodos: GET, POST, PUT, DELETE, OPTIONS
+ *  - Headers: Content-Type, Authorization
+ *  - Credenciales: true
+ *
+ * Si la petición es OPTIONS, responde 200 y termina.
+ */
 header('Access-Control-Allow-Origin: http://localhost:4200');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -9,6 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+/**
+ * Clase Database para gestionar la conexión PDO a MySQL.
+ */
 class Database {
     private $host = 'localhost';
     private $db_name = 'registro_ventas';
@@ -16,6 +34,10 @@ class Database {
     private $password = '';
     private $conn;
 
+    /**
+     * Obtiene la conexión PDO a la base de datos.
+     * @return PDO|null Instancia de PDO o null si falla la conexión
+     */
     public function getConnection() {
         $this->conn = null;
         try {
