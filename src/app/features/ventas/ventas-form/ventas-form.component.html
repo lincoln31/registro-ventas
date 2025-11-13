@@ -69,10 +69,10 @@
               </div>
             </div>
 
-            <!-- Cantidad y precio -->
+            <!-- Cantidad, precio y moneda -->
             <div class="row">
               <!-- Campo cantidad -->
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="form-floating mb-3">
                   <input 
                     type="text" 
@@ -98,8 +98,8 @@
               </div>
 
               <!-- Campo precio unitario -->
-              <div class="col-md-6">
-                <div class="form-floating mb-4">
+              <div class="col-md-4">
+                <div class="form-floating mb-3">
                   <input 
                     type="text" 
                     class="form-control" 
@@ -122,6 +122,24 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Campo moneda -->
+              <div class="col-md-4">
+                <div class="form-floating mb-4">
+                  <select 
+                    class="form-select" 
+                    id="moneda" 
+                    formControlName="moneda"
+                  >
+                    <option *ngFor="let currency of currencyService.currencies" [value]="currency.code">
+                      {{ currency.symbol }} {{ currency.name }}
+                    </option>
+                  </select>
+                  <label for="moneda">
+                    <i class="bi bi-cash-coin me-2"></i>Moneda
+                  </label>
+                </div>
+              </div>
             </div>
 
             <!-- Resumen dinámico de la venta -->
@@ -136,11 +154,15 @@
                     <small class="text-muted">Cantidad</small>
                   </div>
                   <div class="col-4">
-                    <div class="fw-bold text-success">${{ form.value.precioUnit || 0 }}</div>
+                    <div class="fw-bold text-success">
+                      {{ currencyService.getCurrencySymbol(form.value.moneda || 'USD') }}{{ form.value.precioUnit || 0 }}
+                    </div>
                     <small class="text-muted">Precio Unit.</small>
                   </div>
                   <div class="col-4">
-                    <div class="fw-bold text-info">${{ (form.value.cantidad || 0) * (form.value.precioUnit || 0) }}</div>
+                    <div class="fw-bold text-info">
+                      {{ currencyService.getCurrencySymbol(form.value.moneda || 'USD') }}{{ (form.value.cantidad || 0) * (form.value.precioUnit || 0) }}
+                    </div>
                     <small class="text-muted">Total</small>
                   </div>
                 </div>
@@ -153,7 +175,7 @@
               <button 
                 type="button" 
                 class="btn btn-outline-secondary me-md-2"
-                (click)="form.reset({ cantidad: 1, precioUnit: 1 })"
+                (click)="form.reset({ cantidad: 1, precioUnit: 1, moneda: 'USD' })"
                 [disabled]="isSaving()"
               >
                 <i class="bi bi-arrow-clockwise me-2"></i>

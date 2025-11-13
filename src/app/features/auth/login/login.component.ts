@@ -41,16 +41,5 @@ export class LoginComponent {
     }
   }
 
-  // Login con Google
-  async loginWithGoogle() {
-    this.loading.set(true);
-    try {
-      await this.auth.loginWithGoogle();         // login Google
-      this.router.navigate(['/ventas']);
-    } catch (error: any) {
-      alert(this.auth.handleAuthError(error));
-    } finally {
-      this.loading.set(false);
-    }
-  }
+
 }

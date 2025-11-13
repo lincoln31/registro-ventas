@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { VentasService } from '../../../core/services/ventas.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 
 @Component({
   selector: 'app-ventas-form',
@@ -12,6 +13,7 @@ import { VentasService } from '../../../core/services/ventas.service';
 export class VentasFormComponent {
   private readonly fb = inject(FormBuilder); // para crear formularios
   private readonly ventasService = inject(VentasService); // servicio de ventas
+  readonly currencyService = inject(CurrencyService); // servicio de monedas
 
   // señales (estado reactivo)
   readonly isSaving = signal(false); // indica si está guardando
@@ -57,7 +59,8 @@ export class VentasFormComponent {
       Validators.required, 
       this.positiveDecimal.bind(this),
       this.noScientificNotation.bind(this)
-    ]] // decimal positivo sin notación científica
+    ]], // decimal positivo sin notación científica
+    moneda: ['USD', Validators.required] // moneda por defecto USD
   });
 
   // método para bloquear caracteres no deseados en campos numéricos
@@ -162,7 +165,7 @@ async guardarVenta() {
     this.message.set('✅ Venta registrada con éxito.');
 
     // reinicia el formulario con valores por defecto
-    this.form.reset({ cantidad: 1, precioUnit: 1 }); 
+    this.form.reset({ cantidad: 1, precioUnit: 1, moneda: 'USD' }); 
   } catch (err) {
     console.error(err, Number(this.form.value.cantidad),Number(this.form.value.precioUnit),);
     // muestra error si falla

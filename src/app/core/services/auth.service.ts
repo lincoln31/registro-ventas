@@ -1,99 +1,82 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { 
-  Auth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-  User
-} from '@angular/fire/auth';
-import { GoogleAuthProvider } from 'firebase/auth';
-import { FirebaseError } from 'firebase/app';
+import { environment } from '../../../environments/environment';
+import { firstValueFrom } from 'rxjs';
 
-// Modelo simple de usuario autenticado
 interface AuthUser {
   id: string;
   email: string;
   displayName?: string;
-  photoURL?: string;
+}
+
+interface AuthResponse {
+  success: boolean;
+  user?: AuthUser;
+  token?: string;
+  message?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly auth = inject(Auth);
+  private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly googleProvider = new GoogleAuthProvider();
+  private readonly apiUrl = environment.apiUrl;
 
-  // Estado reactivo
-  readonly currentUser = signal<AuthUser | null>(null); // usuario actual
-  readonly isLoading = signal(true);                    // cargando sesión
-  readonly isAuthenticated = computed(() => this.currentUser() !== null); // true si hay usuario
+  readonly currentUser = signal<AuthUser | null>(null);
+  readonly isLoading = signal(true);
+  readonly isAuthenticated = computed(() => this.currentUser() !== null);
 
   constructor() {
     this.initializeAuth();
   }
 
-  // Mantiene sesión entre recargas
   private initializeAuth(): void {
-    onAuthStateChanged(this.auth, (user) => {
-      this.currentUser.set(user ? this.mapUser(user) : null);
-      this.isLoading.set(false);
-    });
+    const user = localStorage.getItem('currentUser');
+    if (user) {
+      this.currentUser.set(JSON.parse(user));
+    }
+    this.isLoading.set(false);
   }
 
-  // Convierte el objeto User de Firebase a AuthUser
-  private mapUser(user: User): AuthUser {
-    return {
-      id: user.uid,
-      email: user.email!,
-      displayName: user.displayName || undefined,
-      photoURL: user.photoURL || undefined
-    };
-  }
-
-  // Login con email y contraseña
   async login(email: string, password: string): Promise<void> {
-    await signInWithEmailAndPassword(this.auth, email, password);
-    this.router.navigate(['/ventas']); // redirige al dashboard
+    const response = await firstValueFrom(
+      this.http.post<AuthResponse>(`${this.apiUrl}/auth/login.php`, { email, password }, { withCredentials: true })
+    );
+    
+    if (response.success && response.user) {
+      this.currentUser.set(response.user);
+      localStorage.setItem('currentUser', JSON.stringify(response.user));
+      this.router.navigate(['/ventas']);
+    } else {
+      throw new Error(response.message || 'Error de autenticación');
+    }
   }
 
-  // Registro con email y contraseña
   async register(email: string, password: string): Promise<void> {
-    await createUserWithEmailAndPassword(this.auth, email, password);
-    this.router.navigate(['/ventas']);
+    const response = await firstValueFrom(
+      this.http.post<AuthResponse>(`${this.apiUrl}/auth/register.php`, { email, password }, { withCredentials: true })
+    );
+    
+    if (response.success && response.user) {
+      this.currentUser.set(response.user);
+      localStorage.setItem('currentUser', JSON.stringify(response.user));
+      this.router.navigate(['/ventas']);
+    } else {
+      throw new Error(response.message || 'Error al registrar');
+    }
   }
 
-  // Login con Google
-  async loginWithGoogle(): Promise<void> {
-    await signInWithPopup(this.auth, this.googleProvider);
-    this.router.navigate(['/ventas']);
-  }
-
-  // Cerrar sesión
   async logout(): Promise<void> {
-    await signOut(this.auth);
+    await firstValueFrom(
+      this.http.get(`${this.apiUrl}/auth/logout.php`, { withCredentials: true })
+    );
+    this.currentUser.set(null);
+    localStorage.removeItem('currentUser');
     this.router.navigate(['/login']);
   }
 
-  // Manejo de errores de autenticación
-  handleAuthError(error: FirebaseError): string {
-    switch (error.code) {
-      case 'auth/user-not-found':
-        return 'Usuario no encontrado';
-      case 'auth/wrong-password':
-        return 'Contraseña incorrecta';
-      case 'auth/invalid-email':
-        return 'Email inválido';
-      case 'auth/email-already-in-use':
-        return 'Email ya registrado';
-      case 'auth/weak-password':
-        return 'Contraseña muy débil';
-      case 'auth/popup-closed-by-user':
-        return 'Inicio de sesión cancelado';
-      default:
-        return 'Error de autenticación';
-    }
+  handleAuthError(error: any): string {
+    return error.error?.message || error.message || 'Error de autenticación';
   }
 }

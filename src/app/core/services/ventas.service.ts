@@ -1,87 +1,84 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, addDoc, collection, collectionData, deleteDoc, doc, query, where, orderBy } from '@angular/fire/firestore';
-import { Auth } from '@angular/fire/auth';
-import { Timestamp } from 'firebase/firestore';  
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { Sale } from '../models/sale.model';
+import { CurrencyService } from './currency.service';
 
-// Tipo para entrada de ventas desde formulario
-type SaleInput = Omit<Sale, 'id' | 'uid' | 'importe' | 'fechaISO' | 'mes' | 'createdAt' | 'fecha'> & {
-  fecha: string; // fecha en string (input date)
+type SaleInput = Omit<Sale, 'id' | 'uid' | 'importe' | 'fechaISO' | 'mes' | 'created_at'> & {
+  fecha: string;
 };
+
+interface ApiResponse {
+  success: boolean;
+  data?: any[];
+  message?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class VentasService {
-  private readonly fs = inject(Firestore);  // Firestore
-  private readonly auth = inject(Auth);     // Usuario actual
-  private readonly colRef = collection(this.fs, 'ventas'); // Colección ventas
+  private readonly http = inject(HttpClient);
+  private readonly currencyService = inject(CurrencyService);
+  private readonly apiUrl = environment.apiUrl;
 
-  // Agregar nueva venta
   async add(sale: SaleInput): Promise<void> {
-    const uid = this.auth.currentUser?.uid;
-    if (!uid) throw new Error('Usuario no autenticado');
+    // Guardar en la moneda original sin convertir
+    const response = await this.http.post<ApiResponse>(
+      `${this.apiUrl}/ventas/create.php`,
+      sale,
+      { withCredentials: true }
+    ).toPromise();
 
-    const fecha = new Date(sale.fecha);
-    const fechaISO = fecha.toISOString().split('T')[0]; // YYYY-MM-DD
-    const mes = fechaISO.substring(0, 7); // YYYY-MM
-    const importe = sale.cantidad * sale.precioUnit;
-
-    const payload: Sale = {
-      ...sale,
-      uid,
-      fecha: Timestamp.fromDate(fecha),
-      fechaISO,
-      mes,
-      importe,
-      createdAt: Timestamp.now()
-    };
-
-    await addDoc(this.colRef, payload as any);
+    if (!response?.success) {
+      throw new Error(response?.message || 'Error al crear venta');
+    }
   }
 
-  // Obtener ventas por día
+  // Obtener ventas filtradas por moneda
+  byCurrency(moneda: string): Observable<Sale[]> {
+    return this.http.get<ApiResponse>(
+      `${this.apiUrl}/ventas/list.php?filter=currency&value=${moneda}`,
+      { withCredentials: true }
+    ).pipe(
+      map(response => response.data || [])
+    );
+  }
+
   byDay(fechaISO: string): Observable<Sale[]> {
-    const uid = this.auth.currentUser?.uid;
-    if (!uid) throw new Error('Usuario no autenticado');
-
-    const q = query(
-      this.colRef,
-      where('uid', '==', uid),
-      where('fechaISO', '==', fechaISO),
-      orderBy('createdAt', 'desc')
+    return this.http.get<ApiResponse>(
+      `${this.apiUrl}/ventas/list.php?filter=day&value=${fechaISO}`,
+      { withCredentials: true }
+    ).pipe(
+      map(response => response.data || [])
     );
-    return collectionData(q, { idField: 'id' }) as Observable<Sale[]>;
   }
 
-  // Obtener ventas por mes
   byMonth(mes: string): Observable<Sale[]> {
-    const uid = this.auth.currentUser?.uid;
-    if (!uid) throw new Error('Usuario no autenticado');
-
-    const q = query(
-      this.colRef,
-      where('uid', '==', uid),
-      where('mes', '==', mes),
-      orderBy('createdAt', 'desc')
+    return this.http.get<ApiResponse>(
+      `${this.apiUrl}/ventas/list.php?filter=month&value=${mes}`,
+      { withCredentials: true }
+    ).pipe(
+      map(response => response.data || [])
     );
-    return collectionData(q, { idField: 'id' }) as Observable<Sale[]>;
   }
 
-  // Obtener todas las ventas
   all(): Observable<Sale[]> {
-    const uid = this.auth.currentUser?.uid;
-    if (!uid) throw new Error('Usuario no autenticado');
-
-    const q = query(
-      this.colRef,
-      where('uid', '==', uid),
-      orderBy('createdAt', 'desc')
+    return this.http.get<ApiResponse>(
+      `${this.apiUrl}/ventas/list.php?filter=all`,
+      { withCredentials: true }
+    ).pipe(
+      map(response => response.data || [])
     );
-    return collectionData(q, { idField: 'id' }) as Observable<Sale[]>;
   }
 
-  // Eliminar venta por ID
   delete(id: string): Promise<void> {
-    return deleteDoc(doc(this.fs, `ventas/${id}`));
+    return this.http.delete<ApiResponse>(
+      `${this.apiUrl}/ventas/delete.php?id=${id}`,
+      { withCredentials: true }
+    ).toPromise().then(response => {
+      if (!response?.success) {
+        throw new Error(response?.message || 'Error al eliminar');
+      }
+    });
   }
 }
