@@ -1,3 +1,3 @@
 export const environment = {
-    apiUrl: 'http://localhost/registro-ventas-backend/api' // URL de tu API PHP
+    apiUrl: 'http://localhost:3000/api' // URL de tu API Node.js
   };

@@ -61,7 +61,7 @@ export class AuthService {
    */
   async login(email: string, password: string): Promise<void> {
     const response = await firstValueFrom(
-      this.http.post<AuthResponse>(`${this.apiUrl}/auth/login.php`, { email, password }, { withCredentials: true })
+      this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, { email, password }, { withCredentials: true })
     );
     
     if (response.success && response.user) {
@@ -81,7 +81,7 @@ export class AuthService {
    */
   async register(email: string, password: string): Promise<void> {
     const response = await firstValueFrom(
-      this.http.post<AuthResponse>(`${this.apiUrl}/auth/register.php`, { email, password }, { withCredentials: true })
+      this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, { email, password }, { withCredentials: true })
     );
     
     if (response.success && response.user) {
@@ -98,7 +98,7 @@ export class AuthService {
    */
   async logout(): Promise<void> {
     await firstValueFrom(
-      this.http.get(`${this.apiUrl}/auth/logout.php`, { withCredentials: true })
+      this.http.get(`${this.apiUrl}/auth/logout`, { withCredentials: true })
     );
     this.currentUser.set(null);
     localStorage.removeItem('currentUser');

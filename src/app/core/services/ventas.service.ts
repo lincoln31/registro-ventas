@@ -40,7 +40,7 @@ export class VentasService {
   async add(sale: SaleInput): Promise<void> {
     // Guardar en la moneda original sin convertir
     const response = await this.http.post<ApiResponse>(
-      `${this.apiUrl}/ventas/create.php`,
+      `${this.apiUrl}/ventas`,
       sale,
       { withCredentials: true }
     ).toPromise();
@@ -57,7 +57,7 @@ export class VentasService {
    */
   byCurrency(moneda: string): Observable<Sale[]> {
     return this.http.get<ApiResponse>(
-      `${this.apiUrl}/ventas/list.php?filter=currency&value=${moneda}`,
+      `${this.apiUrl}/ventas?filter=currency&value=${moneda}`,
       { withCredentials: true }
     ).pipe(
       map(response => response.data || [])
@@ -71,7 +71,7 @@ export class VentasService {
    */
   byDay(fechaISO: string): Observable<Sale[]> {
     return this.http.get<ApiResponse>(
-      `${this.apiUrl}/ventas/list.php?filter=day&value=${fechaISO}`,
+      `${this.apiUrl}/ventas?filter=day&value=${fechaISO}`,
       { withCredentials: true }
     ).pipe(
       map(response => response.data || [])
@@ -85,7 +85,7 @@ export class VentasService {
    */
   byMonth(mes: string): Observable<Sale[]> {
     return this.http.get<ApiResponse>(
-      `${this.apiUrl}/ventas/list.php?filter=month&value=${mes}`,
+      `${this.apiUrl}/ventas?filter=month&value=${mes}`,
       { withCredentials: true }
     ).pipe(
       map(response => response.data || [])
@@ -98,7 +98,7 @@ export class VentasService {
    */
   all(): Observable<Sale[]> {
     return this.http.get<ApiResponse>(
-      `${this.apiUrl}/ventas/list.php?filter=all`,
+      `${this.apiUrl}/ventas?filter=all`,
       { withCredentials: true }
     ).pipe(
       map(response => response.data || [])
@@ -112,7 +112,7 @@ export class VentasService {
    */
   delete(id: string): Promise<void> {
     return this.http.delete<ApiResponse>(
-      `${this.apiUrl}/ventas/delete.php?id=${id}`,
+      `${this.apiUrl}/ventas/${id}`,
       { withCredentials: true }
     ).toPromise().then(response => {
       if (!response?.success) {
